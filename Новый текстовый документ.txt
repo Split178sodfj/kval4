@@ -1,0 +1,69 @@
+1 запрос
+
+SELECT        DATEADD(year, 28, ДатаРазмещения) AS Expr1, DATEADD(year, 28, ДатаНазначения) AS Expr2, DATEADD(year, 28, ДатаИсполнения) AS Expr3
+FROM            dbo.Заказы
+
+
+
+
+
+2 запрос
+
+SELECT        dbo.Поставщики.Название, SUM(dbo.Товары.НаСкладе) AS TotalItemsInStock
+FROM            dbo.Поставщики INNER JOIN
+                         dbo.Товары ON dbo.Поставщики.КодПоставщика = dbo.Товары.КодПоставщика
+GROUP BY dbo.Поставщики.Название
+
+
+
+
+3 запрос +-
+
+SELECT        dbo.Типы.Категория, COUNT(dbo.Товары.НаСкладе) AS TotalItems
+FROM            dbo.Типы INNER JOIN
+                         dbo.Товары ON dbo.Типы.КодТипа = dbo.Товары.КодТипа
+GROUP BY dbo.Типы.Категория
+
+
+4 запрос 
+
+SELECT        TOP (100) PERCENT dbo.Типы.Категория, COUNT(dbo.Заказано.КодТовара) AS TotalOrders
+FROM            dbo.Заказано INNER JOIN
+                         dbo.Товары ON dbo.Заказано.КодТовара = dbo.Товары.КодТовара INNER JOIN
+                         dbo.Типы ON dbo.Товары.КодТипа = dbo.Типы.КодТипа
+GROUP BY dbo.Типы.Категория
+ORDER BY TotalOrders DESC
+
+
+5 запрос 
+
+SELECT        TOP (100) PERCENT YEAR(dbo.Заказы.ДатаИсполнения) AS Year, dbo.Типы.Категория, SUM(dbo.Заказано.Количество) AS TotalItemsSold
+FROM            dbo.Заказано INNER JOIN
+                         dbo.Заказы ON dbo.Заказано.КодЗаказа = dbo.Заказы.КодЗаказа INNER JOIN
+                         dbo.Товары ON dbo.Заказано.КодТовара = dbo.Товары.КодТовара INNER JOIN
+                         dbo.Типы ON dbo.Товары.КодТипа = dbo.Типы.КодТипа
+GROUP BY YEAR(dbo.Заказы.ДатаИсполнения), dbo.Типы.Категория
+ORDER BY Year, TotalItemsSold DESC
+
+
+6 запрос 
+
+SELECT        TOP (1) dbo.Поставщики.Страна, SUM(dbo.Заказано.Количество) AS TotalItemsSupplied
+FROM            dbo.Поставщики INNER JOIN
+                         dbo.Товары ON dbo.Поставщики.КодПоставщика = dbo.Товары.КодПоставщика INNER JOIN
+                         dbo.Заказано ON dbo.Товары.КодТовара = dbo.Заказано.КодТовара
+GROUP BY dbo.Поставщики.Страна
+ORDER BY TotalItemsSupplied DESC
+
+
+7 запрос
+
+
+SELECT        Марка, Цена
+FROM            dbo.Товары
+WHERE        (Цена >
+                             (SELECT        AVG(Цена) AS Expr1
+                               FROM            dbo.Товары AS Товары_1))
+
+
+
